@@ -36,6 +36,7 @@ Summary:`;
       const summary = response.choices[0].message.content.trim();
       
       console.log(`🤖 Summarized: "${article.title}" → "${summary}"`);
+      console.log(`💰 Tokens used: ${response.usage?.total_tokens || 'unknown'}`);
       
       return {
         originalTitle: article.title,
@@ -61,7 +62,7 @@ Summary:`;
         const summary = await this.summarizeArticle(article);
         summaries.push(summary);
         
-        // Add a small delay to avoid rate limiting
+        // Add delay to avoid rate limiting
         await new Promise(resolve => setTimeout(resolve, 1000));
         
       } catch (error) {
@@ -83,7 +84,7 @@ Summary:`;
     
     const testArticle = {
       title: 'OpenAI launches GPT-5 with improved reasoning capabilities',
-      content: 'OpenAI has released GPT-5, their latest language model featuring enhanced reasoning abilities and improved performance across various tasks. The new model shows significant improvements in logical reasoning, mathematical problem solving, and creative writing.',
+      content: 'OpenAI has released GPT-5, their latest language model featuring enhanced reasoning abilities and improved performance across various tasks.',
       link: 'https://example.com/test',
       publishedAt: new Date(),
       source: 'Test'
