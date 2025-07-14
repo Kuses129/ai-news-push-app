@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import NewsChat from './components/NewsChat';
+import { useWebSocket } from './hooks/useWebSocket';
 import './App.css';
 
 interface NewsMessage {
@@ -7,11 +8,16 @@ interface NewsMessage {
   content: string;
   timestamp: Date;
   type: 'ai' | 'user';
+  originalTitle?: string;
+  link?: string;
+  source?: string;
 }
 
 function App() {
   const [messages, setMessages] = useState<NewsMessage[]>([]);
-  const [isConnected, setIsConnected] = useState(false);
+  const [systemMessages, setSystemMessages] = useState<string[]>([]);
+  
+  const { isConnected, onNewsUpdate, onSystemMessage } = useWebSocket();
 
   useEffect(() => {
     // Add welcome message
@@ -23,10 +29,24 @@ function App() {
         type: 'ai'
       }
     ]);
-
-    // Simulate connection status for now
-    setIsConnected(true);
   }, []);
+
+  useEffect(() => {
+    // Handle real-time news updates
+    onNewsUpdate((newsItems) => {
+      console.log('Received newsItems:', newsItems);
+      const parsed = newsItems.map(item => ({
+        ...item,
+        timestamp: new Date(item.timestamp),
+      }));
+      setMessages(prev => [...prev, ...parsed]);
+    });
+
+    // Handle system messages
+    onSystemMessage((message) => {
+      setSystemMessages(prev => [...prev, message]);
+    });
+  }, [onNewsUpdate, onSystemMessage]);
 
   const addMessage = (content: string, type: 'ai' | 'user' = 'ai') => {
     const newMessage: NewsMessage = {

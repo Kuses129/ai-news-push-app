@@ -5,6 +5,9 @@ interface NewsMessage {
   content: string;
   timestamp: Date;
   type: 'ai' | 'user';
+  originalTitle?: string;
+  link?: string;
+  source?: string;
 }
 
 interface NewsChatProps {
@@ -39,6 +42,23 @@ const NewsChat: React.FC<NewsChatProps> = ({ messages, isConnected, onAddMessage
           <div key={message.id} className={`message ${message.type}`}>
             <div className="message-content">
               {message.content}
+              {message.originalTitle && (
+                <div className="message-title">
+                  📰 {message.originalTitle}
+                </div>
+              )}
+              {message.source && (
+                <div className="message-source">
+                  📍 Source: {message.source}
+                </div>
+              )}
+              {message.link && (
+                <div className="message-link">
+                  🔗 <a href={message.link} target="_blank" rel="noopener noreferrer">
+                    Read full article
+                  </a>
+                </div>
+              )}
             </div>
             <div className="message-time">
               {formatTime(message.timestamp)}

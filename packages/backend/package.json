@@ -10,7 +10,8 @@
     "test": "jest",
     "test:crawler": "node src/scripts/testCrawler.js",
     "test:summarize": "node src/scripts/testSummarize.js",
-    "test:pipeline": "node src/scripts/testPipeline.js"
+    "test:pipeline": "node src/scripts/testPipeline.js",
+    "test:websocket": "node src/scripts/testWebSocket.js"
   },
   "dependencies": {
     "axios": "^1.6.0",

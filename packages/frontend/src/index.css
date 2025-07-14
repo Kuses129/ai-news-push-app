@@ -85,6 +85,39 @@ code {
   margin-top: 0.25rem;
 }
 
+.message-title {
+  font-weight: bold;
+  margin-top: 0.5rem;
+  font-size: 0.9rem;
+  color: #1976d2;
+}
+
+.message-source {
+  font-size: 0.8rem;
+  color: #666;
+  margin-top: 0.25rem;
+  font-style: italic;
+}
+
+.message-link {
+  margin-top: 0.5rem;
+}
+
+.message-link a {
+  color: #2196f3;
+  text-decoration: none;
+  font-size: 0.85rem;
+  padding: 0.25rem 0.5rem;
+  background: rgba(33, 150, 243, 0.1);
+  border-radius: 0.25rem;
+  transition: background-color 0.2s;
+}
+
+.message-link a:hover {
+  background: rgba(33, 150, 243, 0.2);
+  text-decoration: underline;
+}
+
 .chat-status {
   padding: 0.5rem 1rem;
   background: #fff;

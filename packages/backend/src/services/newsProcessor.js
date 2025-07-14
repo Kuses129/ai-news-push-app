@@ -42,6 +42,12 @@ class NewsProcessor {
       }));
       this.lastProcessedTime = new Date();
       console.log(`✅ Pipeline completed! Processed ${formattedNews.length} news items`);
+      
+      // Broadcast news updates via WebSocket if available
+      if (global.wsManager && formattedNews.length > 0) {
+        global.wsManager.broadcastNews(formattedNews);
+      }
+      
       return formattedNews;
     } catch (error) {
       console.error('❌ News processing failed:', error.message);

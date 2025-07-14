@@ -1,5 +1,8 @@
 const OpenAI = require('openai');
 
+// Simple in-memory cache for summaries
+const summaryCache = {};
+
 class AISummarizer {
   constructor() {
     this.openai = new OpenAI({
@@ -9,13 +12,14 @@ class AISummarizer {
   }
 
   async summarizeArticle(article) {
+    // Use article link as cache key
+    const cacheKey = article.link;
+    if (summaryCache[cacheKey]) {
+      console.log(`⚡ Using cached summary for: "${article.title}"`);
+      return summaryCache[cacheKey];
+    }
     try {
-      const prompt = `Summarize this AI/tech news article in 1-2 concise sentences (max 150 characters). Focus on the key AI development or impact:
-
-Title: ${article.title}
-Content: ${article.content}
-
-Summary:`;
+      const prompt = `Summarize this AI/tech news article in 1-2 concise sentences (max 150 characters). Focus on the key AI development or impact:\n\nTitle: ${article.title}\nContent: ${article.content}\n\nSummary:`;
 
       const response = await this.openai.chat.completions.create({
         model: this.model,
@@ -34,18 +38,17 @@ Summary:`;
       });
 
       const summary = response.choices[0].message.content.trim();
-      
-      console.log(`🤖 Summarized: "${article.title}" → "${summary}"`);
-      console.log(`💰 Tokens used: ${response.usage?.total_tokens || 'unknown'}`);
-      
-      return {
+      const summaryObj = {
         originalTitle: article.title,
         summary: summary,
         link: article.link,
         publishedAt: article.publishedAt,
         source: article.source
       };
-      
+      summaryCache[cacheKey] = summaryObj;
+      console.log(`🤖 Summarized: "${article.title}" → "${summary}"`);
+      console.log(`💰 Tokens used: ${response.usage?.total_tokens || 'unknown'}`);
+      return summaryObj;
     } catch (error) {
       console.error('❌ Error summarizing article:', error.message);
       throw new Error(`Failed to summarize article: ${error.message}`);
