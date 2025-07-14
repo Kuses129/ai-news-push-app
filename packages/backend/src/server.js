@@ -75,8 +75,8 @@ const startNewsProcessing = async () => {
   }
 };
 
-// Schedule periodic news processing (every 30 minutes)
-const NEWS_UPDATE_INTERVAL = 30 * 60 * 1000; // 30 minutes
+// Schedule periodic news processing (every 15 minutes)
+const NEWS_UPDATE_INTERVAL = 15 * 60 * 1000; // 15 minutes
 setInterval(async () => {
   try {
     console.log('🔄 Starting scheduled news processing...');

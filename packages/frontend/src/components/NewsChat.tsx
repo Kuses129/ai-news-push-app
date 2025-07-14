@@ -18,27 +18,50 @@ interface NewsChatProps {
 
 const NewsChat: React.FC<NewsChatProps> = ({ messages, isConnected, onAddMessage }) => {
   const messagesEndRef = useRef<HTMLDivElement>(null);
+  const messagesContainerRef = useRef<HTMLDivElement>(null);
 
-  const scrollToBottom = () => {
-    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+  const scrollToBottom = (behavior: ScrollBehavior = 'smooth') => {
+    if (messagesEndRef.current) {
+      messagesEndRef.current.scrollIntoView({ behavior });
+    }
   };
 
+  // Scroll to bottom when new messages arrive
   useEffect(() => {
-    scrollToBottom();
+    if (messages.length > 0) {
+      // Use instant scroll for initial load, smooth for new messages
+      const isNewMessage = messages.length > 1;
+      scrollToBottom(isNewMessage ? 'smooth' : 'auto');
+    }
   }, [messages]);
 
+  // Auto-scroll to bottom on mount
+  useEffect(() => {
+    scrollToBottom('auto');
+  }, []);
+
   const formatTime = (date: Date) => {
-    return date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+    return date.toLocaleString([], { 
+      year: 'numeric',
+      month: 'short',
+      day: 'numeric',
+      hour: '2-digit', 
+      minute: '2-digit',
+      hour12: true
+    });
   };
 
   return (
     <div className="chat-container">
       <div className="chat-header">
-        🤖 AI News Updates
+        <div className="chat-title">🤖 AI News Updates</div>
+        <div className="chat-subtitle">I'll keep you updated with the latest AI news in real-time</div>
       </div>
       
-      <div className="chat-messages">
-        {messages.map((message) => (
+      <div className="chat-messages" ref={messagesContainerRef}>
+        {messages
+          .sort((a, b) => a.timestamp.getTime() - b.timestamp.getTime())
+          .map((message) => (
           <div key={message.id} className={`message ${message.type}`}>
             <div className="message-content">
               {message.content}

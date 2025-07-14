@@ -1,4 +1,6 @@
 const TechCrunchSource = require('./newsSources/TechCrunchSource');
+const fs = require('fs').promises;
+const path = require('path');
 
 class NewsProcessor {
   constructor() {
@@ -8,27 +10,86 @@ class NewsProcessor {
       // e.g., new AnotherNewsSource(),
     ];
     this.lastProcessedTime = null;
+    this.timestampFile = path.join(__dirname, '../data/lastProcessed.json');
+    this.lastProcessedTimestamps = {};
+  }
+
+  async loadLastProcessedTimestamps() {
+    try {
+      const data = await fs.readFile(this.timestampFile, 'utf8');
+      this.lastProcessedTimestamps = JSON.parse(data);
+      console.log('📅 Loaded last processed timestamps:', this.lastProcessedTimestamps);
+    } catch (error) {
+      console.log('📅 No previous timestamps found, starting fresh');
+      this.lastProcessedTimestamps = {};
+    }
+  }
+
+  async saveLastProcessedTimestamps() {
+    try {
+      // Ensure data directory exists
+      const dataDir = path.dirname(this.timestampFile);
+      await fs.mkdir(dataDir, { recursive: true });
+      
+      await fs.writeFile(this.timestampFile, JSON.stringify(this.lastProcessedTimestamps, null, 2));
+      console.log('📅 Saved last processed timestamps:', this.lastProcessedTimestamps);
+    } catch (error) {
+      console.error('❌ Failed to save timestamps:', error.message);
+    }
   }
 
   async processNews() {
     try {
-      console.log('🔄 Starting news processing pipeline...');
+      console.log('🔄 Starting incremental news processing pipeline...');
+      
+      // Load previous timestamps
+      await this.loadLastProcessedTimestamps();
+      
       let allArticles = [];
+      let newArticlesCount = 0;
+      
       for (const source of this.sources) {
-        const articles = await source.fetchNews();
-        allArticles = allArticles.concat(articles);
+        const sourceName = source.name;
+        const lastTimestamp = this.lastProcessedTimestamps[sourceName];
+        
+        console.log(`📰 [${sourceName}] Checking for new articles since: ${lastTimestamp || 'never'}`);
+        
+        // Fetch articles with incremental support
+        const articles = await source.fetchNews(lastTimestamp);
+        
+        if (articles.length > 0) {
+          console.log(`✅ [${sourceName}] Found ${articles.length} new articles`);
+          allArticles = allArticles.concat(articles);
+          newArticlesCount += articles.length;
+          
+          // Update timestamp for this source
+          const latestTimestamp = Math.max(...articles.map(a => a.publishedAt.getTime()));
+          this.lastProcessedTimestamps[sourceName] = new Date(latestTimestamp).toISOString();
+        } else {
+          console.log(`ℹ️ [${sourceName}] No new articles found`);
+        }
       }
+      
+      if (newArticlesCount === 0) {
+        console.log('ℹ️ No new articles found since last check');
+        return [];
+      }
+      
       // Deduplicate by link
       const uniqueArticles = this.deduplicateArticles(allArticles);
+      console.log(`📊 Processing ${uniqueArticles.length} unique new articles`);
+      
       if (uniqueArticles.length === 0) {
         console.log('ℹ️ No AI-related articles found');
         return [];
       }
+      
       // Summarize articles
       console.log('🤖 Step 2: Summarizing articles...');
       const AISummarizer = require('./aiSummarizer');
       const summarizer = new AISummarizer();
       const summaries = await summarizer.summarizeArticles(uniqueArticles);
+      
       // Format for frontend
       console.log('📱 Step 3: Formatting for frontend...');
       const formattedNews = summaries.map(summary => ({
@@ -40,8 +101,12 @@ class NewsProcessor {
         link: summary.link,
         source: summary.source
       }));
+      
       this.lastProcessedTime = new Date();
-      console.log(`✅ Pipeline completed! Processed ${formattedNews.length} news items`);
+      console.log(`✅ Pipeline completed! Processed ${formattedNews.length} new news items`);
+      
+      // Save updated timestamps
+      await this.saveLastProcessedTimestamps();
       
       // Broadcast news updates via WebSocket if available
       if (global.wsManager && formattedNews.length > 0) {

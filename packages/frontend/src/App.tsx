@@ -20,15 +20,8 @@ function App() {
   const { isConnected, onNewsUpdate, onSystemMessage } = useWebSocket();
 
   useEffect(() => {
-    // Add welcome message
-    setMessages([
-      {
-        id: 'welcome',
-        content: 'Welcome to AI News! I\'ll keep you updated with the latest AI news in real-time.',
-        timestamp: new Date(),
-        type: 'ai'
-      }
-    ]);
+    // Initialize with empty messages array
+    setMessages([]);
   }, []);
 
   useEffect(() => {

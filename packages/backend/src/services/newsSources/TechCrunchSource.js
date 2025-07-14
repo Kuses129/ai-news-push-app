@@ -10,11 +10,22 @@ class TechCrunchSource extends NewsSource {
     this.rssUrl = process.env.NEWS_RSS_URL || 'https://techcrunch.com/feed/';
   }
 
-  async fetchNews() {
+  async fetchNews(lastTimestamp = null) {
     try {
       console.log(`📰 [TechCrunch] Fetching news from: ${this.rssUrl}`);
       const feed = await this.parser.parseURL(this.rssUrl);
-      const articles = feed.items.slice(0, 10);
+      let articles = feed.items.slice(0, 20); // Fetch more articles to ensure we don't miss any
+      
+      // Filter by timestamp if provided
+      if (lastTimestamp) {
+        const lastTimestampDate = new Date(lastTimestamp);
+        articles = articles.filter(article => {
+          const articleDate = new Date(article.pubDate);
+          return articleDate > lastTimestampDate;
+        });
+        console.log(`📅 [TechCrunch] Filtered to ${articles.length} articles published after ${lastTimestampDate.toISOString()}`);
+      }
+      
       console.log(`✅ [TechCrunch] Fetched ${articles.length} articles from RSS feed`);
       const aiArticles = this.filterAIArticles(articles);
       console.log(`🤖 [TechCrunch] Found ${aiArticles.length} AI-related articles`);

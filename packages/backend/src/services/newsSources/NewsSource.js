@@ -4,8 +4,9 @@ class NewsSource {
   }
 
   // Should return an array of articles: [{title, content, link, publishedAt, source}]
-  async fetchNews() {
-    throw new Error('fetchNews() must be implemented by subclass');
+  // lastTimestamp: optional ISO string of the last processed timestamp
+  async fetchNews(lastTimestamp = null) {
+    throw new Error('fetchNews(lastTimestamp) must be implemented by subclass');
   }
 }
 
