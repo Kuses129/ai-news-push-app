@@ -9,6 +9,7 @@ A real-time AI news push notification app that fetches tech news, summarizes the
 - 📱 **Mobile-Friendly**: Responsive chat-like interface
 - ⚡ **Push Notifications**: Real-time WebSocket-based notifications
 - 🐳 **Docker Support**: Easy local development setup
+- 🚀 **CI/CD Pipeline**: Automated deployment to Heroku via GitHub Actions
 
 ## Tech Stack
 
@@ -18,6 +19,7 @@ A real-time AI news push notification app that fetches tech news, summarizes the
 - **AI**: OpenAI API
 - **News Source**: TechCrunch RSS
 - **Development**: Docker Compose
+- **Deployment**: Heroku + GitHub Actions
 
 ## Quick Start
 
@@ -58,6 +60,28 @@ A real-time AI news push notification app that fetches tech news, summarizes the
 4. **Test the setup**:
    - Frontend: http://localhost:3000
    - Backend Health: http://localhost:3001/health
+
+## Deployment
+
+### Automated CI/CD Pipeline
+
+The app includes a complete CI/CD pipeline that automatically deploys to Heroku:
+
+1. **GitHub Actions**: Runs on every push to main/master
+2. **Testing**: Automated backend and frontend tests
+3. **Building**: Creates production builds
+4. **Deployment**: Deploys to separate Heroku apps for backend and frontend
+
+### Manual Deployment
+
+See [DEPLOYMENT.md](./DEPLOYMENT.md) for detailed deployment instructions.
+
+### Production URLs
+
+Once deployed:
+
+- **Frontend**: https://ai-news-frontend-2024.herokuapp.com
+- **Backend**: https://ai-news-backend-2024.herokuapp.com
 
 ## Project Structure
 

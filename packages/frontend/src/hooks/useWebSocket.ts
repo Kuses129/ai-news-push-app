@@ -25,7 +25,7 @@ interface UseWebSocketReturn {
   onSystemMessage: (callback: (message: string) => void) => void;
 }
 
-export const useWebSocket = (url: string = 'ws://localhost:3001'): UseWebSocketReturn => {
+export const useWebSocket = (url: string = process.env.REACT_APP_WS_URL || 'ws://localhost:3001'): UseWebSocketReturn => {
   const [isConnected, setIsConnected] = useState(false);
   const wsRef = useRef<WebSocket | null>(null);
   const newsCallbackRef = useRef<((news: NewsMessage[]) => void) | null>(null);
