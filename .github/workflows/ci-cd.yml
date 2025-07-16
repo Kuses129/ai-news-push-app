@@ -51,7 +51,7 @@ jobs:
       - name: Setup Heroku CLI
         run: |
           curl https://cli-assets.heroku.com/install.sh | sh
-          echo "${{ secrets.HEROKU_API_KEY }}" | heroku login --username ${{ secrets.HEROKU_EMAIL }} --password-stdin
+          echo "${{ secrets.HEROKU_API_KEY }}" | heroku auth:token --stdin
 
       - name: Deploy to Heroku
         run: |
@@ -72,7 +72,7 @@ jobs:
       - name: Setup Heroku CLI
         run: |
           curl https://cli-assets.heroku.com/install.sh | sh
-          echo "${{ secrets.HEROKU_API_KEY }}" | heroku login --username ${{ secrets.HEROKU_EMAIL }} --password-stdin
+          echo "${{ secrets.HEROKU_API_KEY }}" | heroku auth:token --stdin
 
       - name: Deploy to Heroku
         run: |
