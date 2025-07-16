@@ -15,7 +15,6 @@ interface NewsMessage {
 
 function App() {
   const [messages, setMessages] = useState<NewsMessage[]>([]);
-  const [systemMessages, setSystemMessages] = useState<string[]>([]);
   
   const { isConnected, onNewsUpdate, onSystemMessage } = useWebSocket();
 
@@ -35,9 +34,9 @@ function App() {
       setMessages(prev => [...prev, ...parsed]);
     });
 
-    // Handle system messages
+    // Handle system messages (just log them for now)
     onSystemMessage((message) => {
-      setSystemMessages(prev => [...prev, message]);
+      console.log('System message:', message);
     });
   }, [onNewsUpdate, onSystemMessage]);
 
