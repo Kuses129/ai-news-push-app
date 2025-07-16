@@ -38,14 +38,6 @@ jobs:
         run: npm run build
         working-directory: ./packages/frontend
 
-      - name: Upload build artifacts
-        uses: actions/upload-artifact@v4
-        with:
-          name: build-artifacts
-          path: |
-            packages/backend/dist/
-            packages/frontend/build/
-
   deploy-backend:
     name: Deploy Backend to Heroku
     runs-on: ubuntu-latest
@@ -56,28 +48,16 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: ${{ env.NODE_VERSION }}
-
-      - name: Install dependencies
+      - name: Setup Heroku CLI
         run: |
-          npm ci
-          npm run install:all
+          curl https://cli-assets.heroku.com/install.sh | sh
+          echo "${{ secrets.HEROKU_API_KEY }}" | heroku login --username ${{ secrets.HEROKU_EMAIL }} --password-stdin
 
       - name: Deploy to Heroku
-        uses: akhileshns/heroku-deploy@v3.12.14
-        with:
-          heroku_api_key: ${{ secrets.HEROKU_API_KEY }}
-          heroku_app_name: ${{ secrets.HEROKU_BACKEND_APP_NAME }}
-          heroku_email: ${{ secrets.HEROKU_EMAIL }}
-          appdir: "packages/backend"
-          buildpack: "heroku/nodejs"
-          healthcheck: "https://${{ secrets.HEROKU_BACKEND_APP_NAME }}.herokuapp.com/health"
-          checkstring: "ok"
-          delay: "10"
-          procfile: "web: node src/server.js"
+        run: |
+          cd packages/backend
+          heroku git:remote -a ${{ secrets.HEROKU_BACKEND_APP_NAME }}
+          git push heroku main:main
 
   deploy-frontend:
     name: Deploy Frontend to Heroku
@@ -89,29 +69,13 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: ${{ env.NODE_VERSION }}
-
-      - name: Install dependencies
+      - name: Setup Heroku CLI
         run: |
-          npm ci
-          npm run install:all
-
-      - name: Build frontend
-        run: npm run build
-        working-directory: ./packages/frontend
+          curl https://cli-assets.heroku.com/install.sh | sh
+          echo "${{ secrets.HEROKU_API_KEY }}" | heroku login --username ${{ secrets.HEROKU_EMAIL }} --password-stdin
 
       - name: Deploy to Heroku
-        uses: akhileshns/heroku-deploy@v3.12.14
-        with:
-          heroku_api_key: ${{ secrets.HEROKU_API_KEY }}
-          heroku_app_name: ${{ secrets.HEROKU_FRONTEND_APP_NAME }}
-          heroku_email: ${{ secrets.HEROKU_EMAIL }}
-          appdir: "packages/frontend"
-          buildpack: "heroku/nodejs"
-          healthcheck: "https://${{ secrets.HEROKU_FRONTEND_APP_NAME }}.herokuapp.com"
-          checkstring: "AI News"
-          delay: "10"
-          procfile: "web: npm start"
+        run: |
+          cd packages/frontend
+          heroku git:remote -a ${{ secrets.HEROKU_FRONTEND_APP_NAME }}
+          git push heroku main:main
