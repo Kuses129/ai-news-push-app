@@ -51,7 +51,7 @@ jobs:
       - name: Install Heroku CLI
         run: |
           curl https://cli-assets.heroku.com/install.sh | sh
-          echo "${{ secrets.HEROKU_API_KEY }}" | heroku login --username ${{ secrets.HEROKU_EMAIL }} --password-stdin
+          echo "${{ secrets.HEROKU_API_KEY }}" | heroku auth:token
 
       - name: Deploy Backend
         run: |
@@ -70,7 +70,7 @@ jobs:
       - name: Install Heroku CLI
         run: |
           curl https://cli-assets.heroku.com/install.sh | sh
-          echo "${{ secrets.HEROKU_API_KEY }}" | heroku login --username ${{ secrets.HEROKU_EMAIL }} --password-stdin
+          echo "${{ secrets.HEROKU_API_KEY }}" | heroku auth:token
 
       - name: Configure Frontend Buildpacks
         run: |
