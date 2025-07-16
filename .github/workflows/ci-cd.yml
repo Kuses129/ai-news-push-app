@@ -48,18 +48,14 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Deploy to Heroku
-        uses: akhileshns/heroku-deploy@v3.12.14
-        with:
-          heroku_api_key: ${{ secrets.HEROKU_API_KEY }}
-          heroku_app_name: ${{ secrets.HEROKU_BACKEND_APP_NAME }}
-          heroku_email: ${{ secrets.HEROKU_EMAIL }}
-          appdir: "packages/backend"
-          buildpack: "heroku/nodejs"
-          healthcheck: "https://${{ secrets.HEROKU_BACKEND_APP_NAME }}.herokuapp.com/health"
-          checkstring: "ok"
-          delay: "10"
-          procfile: "web: node src/server.js"
+      - name: Install Heroku CLI
+        run: |
+          curl https://cli-assets.heroku.com/install.sh | sh
+          echo "${{ secrets.HEROKU_API_KEY }}" | heroku login --username ${{ secrets.HEROKU_EMAIL }} --password-stdin
+
+      - name: Deploy Backend
+        run: |
+          git push https://heroku:${{ secrets.HEROKU_API_KEY }}@git.heroku.com/${{ secrets.HEROKU_BACKEND_APP_NAME }}.git main
 
   deploy-frontend:
     name: Deploy Frontend to Heroku
@@ -71,19 +67,10 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Setup Heroku CLI
-        uses: akhileshns/heroku-deploy@v3.12.14
-        with:
-          heroku_api_key: ${{ secrets.HEROKU_API_KEY }}
-          heroku_app_name: ${{ secrets.HEROKU_FRONTEND_APP_NAME }}
-          heroku_email: ${{ secrets.HEROKU_EMAIL }}
-          appdir: "."
-          buildpack: "https://github.com/lstoll/heroku-buildpack-monorepo"
-          healthcheck: "https://${{ secrets.HEROKU_FRONTEND_APP_NAME }}.herokuapp.com"
-          checkstring: "AI News"
-          delay: "10"
-          procfile: "web: npm start"
-          justlogin: true
+      - name: Install Heroku CLI
+        run: |
+          curl https://cli-assets.heroku.com/install.sh | sh
+          echo "${{ secrets.HEROKU_API_KEY }}" | heroku login --username ${{ secrets.HEROKU_EMAIL }} --password-stdin
 
       - name: Configure Frontend Buildpacks
         run: |
