@@ -7,6 +7,7 @@
     "packages/*"
   ],
   "scripts": {
+    "start": "cd packages/backend && npm start",
     "dev": "concurrently \"npm run dev:backend\" \"npm run dev:frontend\"",
     "dev:backend": "cd packages/backend && npm run dev",
     "dev:frontend": "cd packages/frontend && npm start",
