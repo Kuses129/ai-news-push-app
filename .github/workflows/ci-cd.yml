@@ -71,15 +71,27 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Deploy to Heroku
+      - name: Setup Heroku CLI
         uses: akhileshns/heroku-deploy@v3.12.14
         with:
           heroku_api_key: ${{ secrets.HEROKU_API_KEY }}
           heroku_app_name: ${{ secrets.HEROKU_FRONTEND_APP_NAME }}
           heroku_email: ${{ secrets.HEROKU_EMAIL }}
-          appdir: "packages/frontend"
-          buildpack: "heroku/nodejs"
+          appdir: "."
+          buildpack: "https://github.com/lstoll/heroku-buildpack-monorepo"
           healthcheck: "https://${{ secrets.HEROKU_FRONTEND_APP_NAME }}.herokuapp.com"
           checkstring: "AI News"
           delay: "10"
           procfile: "web: npm start"
+          justlogin: true
+
+      - name: Configure Frontend Buildpacks
+        run: |
+          heroku buildpacks:clear -a ${{ secrets.HEROKU_FRONTEND_APP_NAME }}
+          heroku buildpacks:add -a ${{ secrets.HEROKU_FRONTEND_APP_NAME }} https://github.com/lstoll/heroku-buildpack-monorepo
+          heroku buildpacks:add -a ${{ secrets.HEROKU_FRONTEND_APP_NAME }} heroku/nodejs
+          heroku config:set APP_BASE=packages/frontend -a ${{ secrets.HEROKU_FRONTEND_APP_NAME }}
+
+      - name: Deploy Frontend
+        run: |
+          git push https://heroku:${{ secrets.HEROKU_API_KEY }}@git.heroku.com/${{ secrets.HEROKU_FRONTEND_APP_NAME }}.git main
