@@ -56,7 +56,7 @@ jobs:
       - name: Deploy to Heroku
         run: |
           npm install -g heroku
-          echo "${{ secrets.HEROKU_API_KEY }}" | heroku auth:token --stdin
+          echo "${{ secrets.HEROKU_API_KEY }}" | heroku login --username ${{ secrets.HEROKU_EMAIL }} --password-stdin
           cd packages/backend
           heroku git:remote -a ${{ secrets.HEROKU_BACKEND_APP_NAME }}
           git push heroku main:main
@@ -79,7 +79,7 @@ jobs:
       - name: Deploy to Heroku
         run: |
           npm install -g heroku
-          echo "${{ secrets.HEROKU_API_KEY }}" | heroku auth:token --stdin
+          echo "${{ secrets.HEROKU_API_KEY }}" | heroku login --username ${{ secrets.HEROKU_EMAIL }} --password-stdin
           cd packages/frontend
           heroku git:remote -a ${{ secrets.HEROKU_FRONTEND_APP_NAME }}
           git push heroku main:main
